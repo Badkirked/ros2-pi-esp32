@@ -1,45 +1,46 @@
 # ros2-pi-esp32
-How to Install Docker on Raspberry Pi 5 and Set Up a ROS2 Project with micro-ROS
+//How to Install Docker on Raspberry Pi 5 and Set Up a ROS2 Project with micro-ROS
 
 
-Step 1: Install Docker on Raspberry Pi 5
+//Step 1: Install Docker on Raspberry Pi 5
 
-Update your system:
-
+//Update your system:
 
 sudo apt-get update
-Install required packages:
+
+//Install required packages:
 
 sudo apt-get install ca-certificates curl gnupg lsb-release
 
-Add Docker’s official GPG key:
-
+//Add Docker’s official GPG key:
 
 sudo mkdir -m 0755 -p /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 
-Set up the Docker repository:
+//Set up the Docker repository:
 
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-Install Docker Engine
+//Install Docker Engine
 
 sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-Add your user to the Docker group:
+//Add your user to the Docker group:
 
 sudo usermod -aG docker $USER
 Step 2: Create the Project Directory
 
-Create and navigate to the project directory:
+//Create and navigate to the project directory:
 
 mkdir ~/ros2_project
 cd ~/ros2_project
 
-Step 3: Create the Dockerfile
+//Step 3: Create the Dockerfile
 
-Create Dockerfile:
+//Create Dockerfile:
+
+nano Dockerfile
 
 cat <<EOF > Dockerfile
 FROM ubuntu:jammy
@@ -60,13 +61,16 @@ RUN chmod +x ./*.sh
 RUN ./install_ros2.sh
 RUN ./install_microros_esp32.sh
 EOF
-Step 4: Create Installation Scripts
 
-Create the scripts directory:
+// Step 4: Create Installation Scripts
+
+// Create the scripts directory:
 
 mkdir scripts
 
-Create install_ros2.sh:
+// Create install_ros2.sh:
+
+nano install_ros2.sh
 
 cat <<EOF > scripts/install_ros2.sh
 #!/bin/bash
@@ -75,7 +79,7 @@ apt install ros-dev-tools -y
 echo 'source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash' >> ~/.bashrc
 EOF
 
-Create install_espressif.sh:
+//Create install_espressif.sh:
 
 cat <<EOF > scripts/install_espressif.sh
 #!/bin/bash
@@ -105,33 +109,34 @@ export IDF_PATH=\$HOME/esp/esp-idf
 source \$IDF_PATH/export.sh && pip3 install catkin_pkg lark-parser colcon-common-extensions
 EOF
 
-Make scripts executable:
+/ Make scripts executable:
 
 chmod +x scripts/*.sh
 
-Step 5: Build the Docker Image
+// Step 5: Build the Docker Image
 
-Build Docker image:
+// Build Docker image:
 
 docker build . -t ros2rover:humble-pi5-esp32-v1
-Step 6: Run the ROS2 Docker Container
 
-Run the container (option 1):
+//Step 6: Run the ROS2 Docker Container
+
+// Run the container (option 1):
 
 docker stop ros2_humble
 docker rm ros2_humble
 docker run -it --name=ros2_humble --net=host --privileged -v /dev:/dev ros2rover:humble-pi5-esp32-v1 bash
 
-Run the container (option 2):
+// Run the container (option 2):
 
 docker run -it --name=ros2_humble_new --net=host --privileged -v /dev:/dev ros2rover:humble-pi5-esp32-v1 bash
 Step 7: Build and Flash the micro-ROS Example
 
-Navigate to example directory:
+// Navigate to example directory:
 
 cd micro_ros_espidf_component/examples/int32_publisher
 
-Set up ESP32 environment:
+// Set up ESP32 environment:
 
 . \$IDF_PATH/export.sh
 idf.py set-target esp32
@@ -140,18 +145,19 @@ idf.py build
 sudo chmod 666 /dev/ttyUSB0
 idf.py flash -p /dev/ttyUSB0
 
-Step 8: Create and Run the micro-ROS Agent
+// Step 8: Create and Run the micro-ROS Agent
 
-Run the micro-ROS agent:
+// Run the micro-ROS agent:
 
 docker run -it --rm --net=host microros/micro-ros-agent:humble udp4 --port 8888 -v6
-Step 9: Interact with ROS2 Topics
 
-Source ROS2 setup script:
+// Step 9: Interact with ROS2 Topics
+
+// Source ROS2 setup script:
 
 source /opt/ros/humble/setup.bash
 
-List and echo topics:
+// List and echo topics:
 
 ros2 topic list
 ros2 topic echo /freertos_int32_publisher
