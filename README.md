@@ -29,6 +29,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
 
 //Add your user to the Docker group:
 
+
 sudo usermod -aG docker $USER
 
 //reboot or logout 
@@ -195,21 +196,116 @@ xxxxx
 
 //Step 6: Run the ROS2 Docker Container
 
-// Run the container (option 1):
+// Run the container :
 
 //docker stop ros2_humble
 //docker rm ros2_humble
 docker run -it --name=ros2_humble --net=host --privileged -v /dev:/dev ros2rover:humble-pi5-esp32-v1 bash
 
-// Run the container (option 2):
 
-docker run -it --name=ros2_humble_new --net=host --privileged -v /dev:/dev ros2rover:humble-pi5-esp32-v1 bash
 
 Step 7: Build and Flash the micro-ROS Example
 
 // Navigate to example directory:
 
 cd micro_ros_espidf_component/examples/int32_publisher
+
+
+xxxxxxxxxxxxxxxx
+
+Set Up ESP32 Environment
+Navigate to the example directory:
+
+
+cd micro_ros_espidf_component/examples/int32_publisher
+Set up the ESP-IDF environment:
+
+
+. $IDF_PATH/export.sh
+// Set the target to ESP32:
+
+
+idf.py set-target esp32
+Configure the project:
+
+
+idf.py menuconfig
+//In the menuconfig, set the micro-ROS Agent IP and WiFi configuration, then save and exit.
+//Build the project:
+
+
+idf.py build
+// Ensure permissions for the USB port:
+
+
+sudo chmod 666 /dev/ttyUSB0  # Replace ttyUSB0 with your actual device name
+//Flash the firmware to the ESP32:
+
+
+idf.py flash -p /dev/ttyUSB0
+//Create and Run the micro-ROS Agent
+//Open a new terminal and run the micro-ROS agent:
+
+
+docker run -it --rm --net=host microros/micro-ros-agent:humble udp4 --port 8888 -v6
+//Interact with ROS2 Topics
+//In the ROS2 Humble container, source the ROS2 setup script:
+
+
+source /opt/ros/humble/setup.bash
+//List the available topics:
+
+
+ros2 topic list
+// Echo the messages from the /freertos_int32_publisher topic:
+
+
+ros2 topic echo /freertos_int32_publisher
+// Summary of Commands
+
+
+# Navigate to the example directory
+cd micro_ros_espidf_component/examples/int32_publisher
+
+# Set up the ESP-IDF environment
+. $IDF_PATH/export.sh
+
+# Set the target to ESP32
+idf.py set-target esp32
+
+# Configure the project (set micro-ROS Agent IP and WiFi configuration)
+idf.py menuconfig
+
+# Build the project
+idf.py build
+
+# Ensure permissions for the USB port
+sudo chmod 666 /dev/ttyUSB0  # Replace ttyUSB0 with your actual device name
+
+# Flash the firmware to the ESP32
+idf.py flash -p /dev/ttyUSB0
+
+# Open a new terminal and run the micro-ROS agent
+docker run -it --rm --net=host microros/micro-ros-agent:humble udp4 --port 8888 -v6
+
+# In the ROS2 Humble container, source the ROS2 setup script
+source /opt/ros/humble/setup.bash
+
+# List the available topics
+ros2 topic list
+
+# Echo the messages from the /freertos_int32_publisher topic
+ros2 topic echo /freertos_int32_publisher
+By following these steps, you will be able to build and flash the micro-ROS example on your ESP32, run the micro-ROS agent, and interact with ROS2 topics from your Raspberry Pi 5.
+
+
+
+
+xxxxxxxx
+
+
+
+
 
 // Set up ESP32 environment:
 
